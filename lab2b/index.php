@@ -1,10 +1,15 @@
 <?php
 
-define('CUSTOMERS_FILE_PATH', 'customers-100.csv');
+define('CUSTOMERS_FILE_PATH', 'customers-10000.csv');
 
-function get_hundred_customers_data()
+function get_customers_data()
 {
+    $start_time = microtime(true);
+    
     $opened_file_handler = fopen(CUSTOMERS_FILE_PATH, 'r');
+    if ($opened_file_handler === false) {
+        die("Error: Unable to open the file " . CUSTOMERS_FILE_PATH);
+    }
 
     $data = [];
     $headers = [];
@@ -12,7 +17,7 @@ function get_hundred_customers_data()
     while (!feof($opened_file_handler)) {
 
         $row = fgetcsv($opened_file_handler, 1024);
-        if (!empty($row)) {
+        if ($row !== false && !empty($row)) {
             if ($row_count == 0) {
                 array_push($headers, $row);    
             } else {
@@ -21,16 +26,21 @@ function get_hundred_customers_data()
         }
 
         $row_count++;
-
     }
+
+    fclose($opened_file_handler);
+
+    $end_time = microtime(true);
+    $execution_time = $end_time - $start_time;
 
     return [
         'headers' => $headers,
-        'data' => $data
+        'data' => $data,
+        'execution_time' => $execution_time
     ];
 }
 
-$customers = get_hundred_customers_data();
+$customers = get_customers_data();
 
 ?>
 <html>
@@ -53,6 +63,7 @@ $customers = get_hundred_customers_data();
 <small>
 The dataset is retrieved from this URL <a href="https://www.datablist.com/learn/csv/download-sample-csv-files">https://www.datablist.com/learn/csv/download-sample-csv-files</a>
 </small>
+<p>Execution Time: <?php echo round($customers['execution_time'], 4); ?> seconds</p>
 <table aria-label="Customers Dataset">
     <thead>
         <tr>
@@ -68,11 +79,11 @@ The dataset is retrieved from this URL <a href="https://www.datablist.com/learn/
     foreach ($customers['data'] as $record):
     ?>
         <tr>
-            <td><?php echo $record[1]; ?></td>
-            <td><?php echo "<strong>{$record[3]}</strong>, {$record[2]}"; ?></td>
-            <td><?php echo $record[4]; ?></td>
-            <td><?php echo $record[7]; ?></td>
-            <td><?php echo $record[9]; ?></td>
+            <td><?php echo htmlspecialchars($record[1]); ?></td>
+            <td><?php echo htmlspecialchars("<strong>{$record[3]}</strong>, {$record[2]}"); ?></td>
+            <td><?php echo htmlspecialchars($record[4]); ?></td>
+            <td><?php echo htmlspecialchars($record[7]); ?></td>
+            <td><?php echo htmlspecialchars($record[9]); ?></td>
         </tr>
     <?php
     endforeach;
