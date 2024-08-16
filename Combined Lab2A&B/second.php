@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="text" name="address" value="<?php echo htmlspecialchars($form_data['address']); ?>">
             </div>
 
-            <div class="input-box">
+            <div class="">
                 <label>Email Address:</label>
                 <input type="email" name="email" value="<?php echo htmlspecialchars($form_data['email']); ?>">
             </div>
